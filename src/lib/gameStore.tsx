@@ -30,6 +30,7 @@ interface GameStoreCtx extends GameStoreState {
   selectMusic: (id: string) => void;
   unlockMusic: (id: string) => boolean;
   addStars: (amount: number) => void;
+  resetProgress: () => void;
 }
 
 const STORAGE_KEY = 'vita-mahjong-store';
@@ -174,11 +175,15 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
     setState(s => ({ ...s, stars: s.stars + amount }));
   }, []);
 
+  const resetProgress = useCallback(() => {
+    setState(DEFAULT_STATE);
+  }, []);
+
   return (
     <Ctx.Provider value={{
       ...state, selectedAvatar, selectedBackground, selectedMusic, bgStyle,
       getSkillLevel, selectAvatar, unlockAvatar, upgradeSkill,
-      selectBackground, unlockBackground, selectMusic, unlockMusic, addStars,
+      selectBackground, unlockBackground, selectMusic, unlockMusic, addStars, resetProgress,
     }}>
       {children}
     </Ctx.Provider>

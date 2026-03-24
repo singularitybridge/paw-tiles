@@ -1391,6 +1391,133 @@ html, body {
 
 /* ── Placeholder Screen ──────────────────── */
 
+/* ── Settings Screen ─────────────────────── */
+
+.settings-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-section {
+  background: rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.settings-section-title {
+  font-family: var(--font-fredoka), 'Fredoka', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(252,211,77,0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.settings-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.settings-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+}
+
+.settings-stat-value {
+  font-family: var(--font-fredoka), 'Fredoka', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #f0e8d8;
+}
+
+.settings-stat-value .star-icon {
+  font-size: 1.1rem;
+}
+
+.settings-stat-label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.settings-about {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-about-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.settings-about-label {
+  color: rgba(255,255,255,0.5);
+}
+
+.settings-about-value {
+  color: #f0e8d8;
+  font-family: var(--font-fredoka), 'Fredoka', sans-serif;
+}
+
+.settings-howto {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.6);
+}
+
+.settings-danger-title {
+  color: rgba(239,68,68,0.7) !important;
+}
+
+.settings-danger-desc {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.settings-reset-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(239,68,68,0.25);
+  background: rgba(239,68,68,0.08);
+  color: rgba(239,68,68,0.7);
+  font-family: var(--font-fredoka), 'Fredoka', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-reset-btn:active {
+  transform: scale(0.98);
+}
+
+.settings-reset-btn.confirm {
+  background: rgba(239,68,68,0.2);
+  border-color: rgba(239,68,68,0.5);
+  color: #ef4444;
+}
+
 .placeholder-content {
   flex: 1;
   display: flex;

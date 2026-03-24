@@ -11,7 +11,7 @@ import AvatarSkills from '@/components/AvatarSkills';
 import TilesGallery from '@/components/TilesGallery';
 import BackgroundsGallery from '@/components/BackgroundsGallery';
 import MusicScreen from '@/components/MusicScreen';
-import PlaceholderScreen from '@/components/PlaceholderScreen';
+import SettingsScreen from '@/components/SettingsScreen';
 
 const MahjongGame = dynamic(() => import('@/components/MahjongGame'), {
   ssr: false,
@@ -68,7 +68,7 @@ function App() {
       return <MusicScreen onBack={() => setScreen('designer')} />;
 
     case 'settings':
-      return <PlaceholderScreen title="Settings" onBack={() => setScreen('menu')} />;
+      return <SettingsScreen onBack={() => setScreen('menu')} />;
 
     default:
       return <MainMenu onNavigate={setScreen} />;
