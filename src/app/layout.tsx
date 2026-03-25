@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   title: 'Vita Mahjong — Tile Matching Game',
   description:
     'Classic Mahjong Solitaire tile-matching game. Match pairs of free tiles to clear the board!',
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({

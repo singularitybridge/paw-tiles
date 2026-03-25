@@ -11,8 +11,57 @@ import {
   findSlotMatch, findHint,
   getRemainingCount, shuffleRemaining,
   BOARD_COLS, BOARD_ROWS, SLOT_COUNT, MAX_LAYERS,
+  type GeneratedGame,
 } from '@/lib/mahjong';
 import { useGameStore } from '@/lib/gameStore';
+import TutorialOverlay, { useTutorial } from './TutorialOverlay';
+
+// ── Audio ─────────────────────────────────
+function useAudio() {
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRefs = useRef<Record<string, HTMLAudioElement>>({});
+
+  useEffect(() => {
+    const bgm = new Audio('/audio/bgm.mp3');
+    bgm.loop = true;
+    bgm.volume = 0.15;
+    bgmRef.current = bgm;
+
+    sfxRefs.current = {
+      tap: new Audio('/audio/tap.mp3'),
+      match: new Audio('/audio/match.mp3'),
+      gameover: new Audio('/audio/gameover.mp3'),
+      win: new Audio('/audio/win.mp3'),
+    };
+    sfxRefs.current.tap.volume = 0.3;
+    sfxRefs.current.match.volume = 0.35;
+    sfxRefs.current.gameover.volume = 0.3;
+    sfxRefs.current.win.volume = 0.35;
+
+    return () => { bgm.pause(); bgm.src = ''; };
+  }, []);
+
+  const startBgm = useCallback(() => {
+    bgmRef.current?.play().catch(() => {});
+  }, []);
+
+  const stopBgm = useCallback(() => {
+    if (bgmRef.current) {
+      bgmRef.current.pause();
+      bgmRef.current.currentTime = 0;
+    }
+  }, []);
+
+  const playSfx = useCallback((name: string) => {
+    const sfx = sfxRefs.current[name];
+    if (sfx) {
+      sfx.currentTime = 0;
+      sfx.play().catch(() => {});
+    }
+  }, []);
+
+  return { startBgm, stopBgm, playSfx };
+}
 
 const TILE_IMAGES: Record<string, string> = {
   'dots-1': '/tiles/dots-1.png', 'dots-2': '/tiles/dots-2.png', 'dots-3': '/tiles/dots-3.png',
@@ -62,9 +111,9 @@ function calcDims(vw: number, vh: number): Dims {
   const controlsH = 52;
   const availH = vh - headerH - slotBarH - controlsH - 6;
   const pad = 3;
-  const loRatio = 0.4;
+  const loRatio = 0.25;
   const tileRatio = 1.35;
-  const gapRatio = 0.1;
+  const gapRatio = 0.02;
   const topLayer = MAX_LAYERS - 1;
 
   const colF = BOARD_COLS + (BOARD_COLS - 1) * gapRatio;
@@ -94,10 +143,13 @@ interface Snapshot { tiles: GameTile[]; slots: (SlotItem | null)[]; score: numbe
 
 interface MahjongGameProps {
   onBack?: () => void;
+  onSettings?: () => void;
 }
 
-export default function MahjongGame({ onBack }: MahjongGameProps) {
-  const { selectedAvatar, addStars, bgStyle, getSkillLevel } = useGameStore();
+export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
+  const { selectedAvatar, addStars, bgStyle, getSkillLevel, vibrate } = useGameStore();
+  const { startBgm, stopBgm, playSfx } = useAudio();
+  const { showTutorial, completeTutorial } = useTutorial();
   const [tiles, setTiles] = useState<GameTile[]>([]);
   const [slots, setSlots] = useState<(SlotItem | null)[]>(Array(SLOT_COUNT).fill(null));
   const [score, setScore] = useState(0);
@@ -110,6 +162,7 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
   const [history, setHistory] = useState<Snapshot[]>([]);
   const [scorePopups, setScorePopups] = useState<ScorePopup[]>([]);
   const [shakeBoard, setShakeBoard] = useState(false);
+  const [boardSeed, setBoardSeed] = useState(0);
   const [dims, setDims] = useState<Dims>(() =>
     typeof window !== 'undefined' ? calcDims(window.innerWidth, window.innerHeight) : calcDims(400, 800),
   );
@@ -147,7 +200,9 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
 
   // ── New Game ──────────────────────────────
   const startNewGame = useCallback(() => {
-    setTiles(generateGame());
+    const game = generateGame();
+    setTiles(game.tiles);
+    setBoardSeed(game.seed);
     setSlots(Array(SLOT_COUNT).fill(null));
     slotsRef.current = Array(SLOT_COUNT).fill(null);
     setScore(0);
@@ -162,9 +217,10 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
     setShakeBoard(false);
     setScorePopups([]);
     setIsDealing(true);
+    startBgm();
     if (dealRef.current) clearTimeout(dealRef.current);
     dealRef.current = setTimeout(() => setIsDealing(false), 1500);
-  }, []);
+  }, [startBgm]);
 
   useEffect(() => { startNewGame(); return () => { if (dealRef.current) clearTimeout(dealRef.current); }; }, [startNewGame]);
 
@@ -188,11 +244,14 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
     if (gameState !== 'playing' || isDealing) return;
     if (getRemainingCount(tiles) === 0 && slots.every(s => s === null)) {
       setGameState('won');
+      playSfx('win');
+      stopBgm();
+      vibrate([30, 50, 30, 50, 30, 80, 60]);
       // Award stars: 1 base + bonus for high score
       const bonus = score >= 1000 ? 2 : score >= 500 ? 1 : 0;
       addStars(1 + bonus);
     }
-  }, [tiles, slots, gameState, isDealing]);
+  }, [tiles, slots, gameState, isDealing, playSfx, stopBgm]);
 
   // ── Fly complete → reveal slot tile, check match ──
   const handleFlyComplete = useCallback((flyId: number, slotIdx: number) => {
@@ -210,7 +269,8 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
     if (match && !hiddenSlotsRef.current.has(match[0]) && !hiddenSlotsRef.current.has(match[1])) {
       matchActiveRef.current = true;
       setMatchingSlots(match);
-      if (navigator.vibrate) navigator.vibrate([15, 30, 30]);
+      playSfx('match');
+      vibrate([15, 40, 15]);
 
       setTimeout(() => {
         matchActiveRef.current = false;
@@ -232,13 +292,15 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
     // Game over check
     if (!match && curSlots.every(s => s !== null) && hiddenSlotsRef.current.size === 0) {
       setShakeBoard(true);
-      if (navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
+      vibrate([50, 30, 50, 30, 100]);
+      playSfx('gameover');
+      stopBgm();
       setTimeout(() => {
         setShakeBoard(false);
         setGameState('lost');
       }, 600);
     }
-  }, [addScorePopup]);
+  }, [addScorePopup, playSfx, stopBgm]);
 
   // ── Tile Click — non-blocking, concurrent ──
   const handleTileClick = useCallback((id: number, e: React.MouseEvent<HTMLDivElement>) => {
@@ -250,7 +312,8 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
     if (emptyIdx === -1) return;
 
     setHintId(null);
-    if (navigator.vibrate) navigator.vibrate(8);
+    playSfx('tap');
+    vibrate(10);
     setHistory(h => [...h, { tiles, slots, score }]);
 
     // Remove tile from board
@@ -289,7 +352,7 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
       hiddenSlotsRef.current.delete(emptyIdx);
       setHiddenSlots(new Set(hiddenSlotsRef.current));
     }
-  }, [tiles, slots, score, gameState, isDealing, freeTileIds]);
+  }, [tiles, slots, score, gameState, isDealing, freeTileIds, playSfx]);
 
   // ── Actions ───────────────────────────────
   const hintAction = useCallback(() => {
@@ -360,14 +423,17 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
         <div className="game-header-left">
           {onBack && (
             <button className="game-home-btn" onClick={onBack}>
-              <Home size={16} color="rgba(255,255,255,0.5)" strokeWidth={2} />
+              <Home size={18} color="rgba(255,255,255,0.5)" strokeWidth={2} />
             </button>
           )}
-          <div className="game-avatar">
+          <div className="game-avatar" onClick={onSettings} role="button" tabIndex={0}>
             <img src={selectedAvatar.image} alt={selectedAvatar.name} />
           </div>
         </div>
-        <span className="score-value" key={score}>{score.toLocaleString()}</span>
+        <div className="game-header-right">
+          <span className="score-value" key={score}>{score.toLocaleString()}</span>
+          <span className="board-seed">#{boardSeed}</span>
+        </div>
       </div>
 
       {/* Slot Bar — at the top */}
@@ -538,7 +604,7 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
       {gameState === 'lost' && (
         <div className="overlay">
           <div className="overlay-card">
-            <div className="overlay-emoji">😵</div>
+            <img src="/game-over-cat.png" alt="Game Over" className="overlay-img" />
             <h2>Slots Full!</h2>
             <p>No matching pair — game over.</p>
             <div className="overlay-actions">
@@ -547,6 +613,11 @@ export default function MahjongGame({ onBack }: MahjongGameProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Tutorial */}
+      {showTutorial && gameState === 'playing' && !isDealing && (
+        <TutorialOverlay onComplete={completeTutorial} />
       )}
     </div>
   );

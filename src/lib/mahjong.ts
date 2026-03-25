@@ -154,12 +154,57 @@ export function createTilePool(): TileType[] {
   return pool;
 }
 
-export function generateGame(): GameTile[] {
+// Check if a board is solvable via greedy pair removal
+function isSolvable(tiles: GameTile[]): boolean {
+  const sim = tiles.map(t => ({ ...t }));
+  let progress = true;
+  while (progress) {
+    progress = false;
+    const remaining = sim.filter(t => !t.removed);
+    if (remaining.length === 0) return true;
+    const free = remaining.filter(t => getTileState(t, sim) === 'free');
+    // Try to find any matching pair among free tiles
+    for (let i = 0; i < free.length; i++) {
+      for (let j = i + 1; j < free.length; j++) {
+        if (free[i].type.matchGroup === free[j].type.matchGroup) {
+          sim.find(t => t.id === free[i].id)!.removed = true;
+          sim.find(t => t.id === free[j].id)!.removed = true;
+          progress = true;
+          break;
+        }
+      }
+      if (progress) break;
+    }
+  }
+  return sim.every(t => t.removed);
+}
+
+export interface GeneratedGame {
+  tiles: GameTile[];
+  seed: number;
+  attempts: number;
+}
+
+export function generateGame(): GeneratedGame {
   const positions = generateLayout();
+  const MAX_ATTEMPTS = 10;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const seed = Math.floor(Math.random() * 10000);
+    const pool = shuffle(createTilePool());
+    const tiles = positions.map((pos, i) => ({
+      id: i, type: pool[i], position: pos, removed: false,
+    }));
+    if (isSolvable(tiles)) {
+      return { tiles, seed, attempts: attempt };
+    }
+  }
+  // Fallback: return last attempt anyway
+  const seed = Math.floor(Math.random() * 10000);
   const pool = shuffle(createTilePool());
-  return positions.map((pos, i) => ({
+  const tiles = positions.map((pos, i) => ({
     id: i, type: pool[i], position: pos, removed: false,
   }));
+  return { tiles, seed, attempts: MAX_ATTEMPTS + 1 };
 }
 
 // Tile state: why is it blocked?

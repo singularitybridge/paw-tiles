@@ -8,7 +8,7 @@ interface SettingsScreenProps {
 }
 
 export default function SettingsScreen({ onBack }: SettingsScreenProps) {
-  const { stars, unlockedAvatarIds, unlockedBackgroundIds, unlockedMusicIds, resetProgress } = useGameStore();
+  const { stars, unlockedAvatarIds, unlockedBackgroundIds, unlockedMusicIds, hapticsEnabled, toggleHaptics, resetProgress } = useGameStore();
   const [confirmReset, setConfirmReset] = useState(false);
 
   const handleReset = () => {
@@ -52,6 +52,17 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
             <div className="settings-stat">
               <span className="settings-stat-value">{unlockedMusicIds.length}</span>
               <span className="settings-stat-label">Music</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Preferences */}
+        <div className="settings-section">
+          <div className="settings-section-title">Preferences</div>
+          <div className="settings-toggle-row" onClick={toggleHaptics}>
+            <span className="settings-toggle-label">Haptic Feedback</span>
+            <div className={`settings-toggle ${hapticsEnabled ? 'on' : ''}`}>
+              <div className="settings-toggle-knob" />
             </div>
           </div>
         </div>

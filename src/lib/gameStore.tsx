@@ -14,6 +14,7 @@ interface GameStoreState {
   selectedMusicId: string;
   unlockedMusicIds: string[];
   stars: number;
+  hapticsEnabled: boolean;
 }
 
 interface GameStoreCtx extends GameStoreState {
@@ -30,6 +31,8 @@ interface GameStoreCtx extends GameStoreState {
   selectMusic: (id: string) => void;
   unlockMusic: (id: string) => boolean;
   addStars: (amount: number) => void;
+  toggleHaptics: () => void;
+  vibrate: (pattern: number | number[]) => void;
   resetProgress: () => void;
 }
 
@@ -44,6 +47,7 @@ const DEFAULT_STATE: GameStoreState = {
   selectedMusicId: 'silent',
   unlockedMusicIds: ['silent', 'peaceful'],
   stars: 0,
+  hapticsEnabled: true,
 };
 
 function loadState(): GameStoreState {
@@ -175,6 +179,16 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
     setState(s => ({ ...s, stars: s.stars + amount }));
   }, []);
 
+  const toggleHaptics = useCallback(() => {
+    setState(s => ({ ...s, hapticsEnabled: !s.hapticsEnabled }));
+  }, []);
+
+  const vibrate = useCallback((pattern: number | number[]) => {
+    if (state.hapticsEnabled && navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  }, [state.hapticsEnabled]);
+
   const resetProgress = useCallback(() => {
     setState(DEFAULT_STATE);
   }, []);
@@ -183,7 +197,8 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider value={{
       ...state, selectedAvatar, selectedBackground, selectedMusic, bgStyle,
       getSkillLevel, selectAvatar, unlockAvatar, upgradeSkill,
-      selectBackground, unlockBackground, selectMusic, unlockMusic, addStars, resetProgress,
+      selectBackground, unlockBackground, selectMusic, unlockMusic, addStars,
+      toggleHaptics, vibrate, resetProgress,
     }}>
       {children}
     </Ctx.Provider>

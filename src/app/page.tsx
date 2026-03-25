@@ -47,7 +47,7 @@ function App() {
       return <MainMenu onNavigate={setScreen} />;
 
     case 'playing':
-      return <MahjongGame onBack={() => setScreen('menu')} />;
+      return <MahjongGame onBack={() => setScreen('menu')} onSettings={() => setScreen('settings')} />;
 
     case 'avatar':
       return <AvatarGallery onBack={() => setScreen('menu')} onViewSkills={viewSkills} />;
