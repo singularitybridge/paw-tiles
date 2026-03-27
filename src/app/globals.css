@@ -794,10 +794,8 @@ body::-webkit-scrollbar,
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  border: 3px solid rgba(212,165,116,0.7);
   overflow: hidden;
-  background: linear-gradient(155deg, #f2e4c8, #d5c090);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 16px rgba(212,165,116,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .menu-avatar-frame img {
@@ -1030,7 +1028,6 @@ body::-webkit-scrollbar,
   height: 40px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(212,165,116,0.4);
   flex-shrink: 0;
 }
 .designer-debug-avatar img {
@@ -1137,7 +1134,6 @@ body::-webkit-scrollbar,
   height: 44px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.5);
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
@@ -1216,13 +1212,10 @@ body::-webkit-scrollbar,
   height: 96px;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(155deg, #f2e4c8, #d5c090);
-  border: 2px solid rgba(212,165,116,0.4);
 }
 
 .avatar-card.selected .avatar-card-image {
-  border-color: rgba(252,211,77,0.6);
-  box-shadow: 0 0 12px rgba(252,211,77,0.2);
+  box-shadow: 0 0 12px rgba(252,211,77,0.3);
 }
 
 .avatar-card-image img {
@@ -1327,7 +1320,6 @@ body::-webkit-scrollbar,
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #0a2010;
 }
 
 .avatar-card-name {
@@ -1629,9 +1621,7 @@ body::-webkit-scrollbar,
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  border: 3px solid rgba(212,165,116,0.6);
   overflow: hidden;
-  background: linear-gradient(155deg, #f2e4c8, #d5c090);
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   margin-bottom: 4px;
 }
@@ -1822,7 +1812,6 @@ body::-webkit-scrollbar,
   height: 52px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(212,165,116,0.4);
   flex-shrink: 0;
 }
 .settings-avatar-img img {
