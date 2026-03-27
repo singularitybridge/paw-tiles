@@ -17,12 +17,12 @@ import { useGameStore } from '@/lib/gameStore';
 import TutorialOverlay, { useTutorial } from './TutorialOverlay';
 
 // ── Audio ─────────────────────────────────
-function useAudio() {
+function useAudio(musicSrc: string) {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const sfxRefs = useRef<Record<string, HTMLAudioElement>>({});
 
   useEffect(() => {
-    const bgm = new Audio('/audio/bgm.mp3');
+    const bgm = new Audio(musicSrc);
     bgm.loop = true;
     bgm.volume = 0.15;
     bgmRef.current = bgm;
@@ -39,7 +39,7 @@ function useAudio() {
     sfxRefs.current.win.volume = 0.35;
 
     return () => { bgm.pause(); bgm.src = ''; };
-  }, []);
+  }, [musicSrc]);
 
   const startBgm = useCallback(() => {
     bgmRef.current?.play().catch(() => {});
@@ -148,7 +148,7 @@ interface MahjongGameProps {
 
 export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
   const { selectedAvatar, addStars, getSkillLevel, vibrate } = useGameStore();
-  const { startBgm, stopBgm, playSfx } = useAudio();
+  const { startBgm, stopBgm, playSfx } = useAudio(selectedAvatar.music);
   const { showTutorial, completeTutorial } = useTutorial();
   const [tiles, setTiles] = useState<GameTile[]>([]);
   const [slots, setSlots] = useState<(SlotItem | null)[]>(Array(SLOT_COUNT).fill(null));

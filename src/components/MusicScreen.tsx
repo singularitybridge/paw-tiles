@@ -1,6 +1,6 @@
 'use client';
 
-import { MUSIC_TRACKS } from '@/lib/music';
+import { AVATARS } from '@/lib/avatars';
 import { useGameStore } from '@/lib/gameStore';
 
 interface MusicScreenProps {
@@ -8,15 +8,7 @@ interface MusicScreenProps {
 }
 
 export default function MusicScreen({ onBack }: MusicScreenProps) {
-  const { selectedMusicId, unlockedMusicIds, stars, selectMusic, unlockMusic } = useGameStore();
-
-  const handleTap = (id: string) => {
-    if (unlockedMusicIds.includes(id)) {
-      selectMusic(id);
-    } else {
-      unlockMusic(id);
-    }
-  };
+  const { selectedAvatar, unlockedAvatarIds, stars } = useGameStore();
 
   return (
     <div className="menu-container">
@@ -31,41 +23,40 @@ export default function MusicScreen({ onBack }: MusicScreenProps) {
       </div>
 
       <div className="music-list">
-        {MUSIC_TRACKS.map(track => {
-          const unlocked = unlockedMusicIds.includes(track.id);
-          const selected = track.id === selectedMusicId;
-          const canAfford = stars >= track.unlockCost;
+        <div className="music-note" style={{ marginBottom: 8 }}>
+          Each avatar brings their own background music. Select an avatar to hear their world.
+        </div>
+
+        {AVATARS.map(avatar => {
+          const unlocked = unlockedAvatarIds.includes(avatar.id);
+          const active = avatar.id === selectedAvatar.id;
 
           return (
-            <button
-              key={track.id}
-              className={`music-track ${selected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
-              onClick={() => handleTap(track.id)}
-              disabled={!unlocked && !canAfford}
+            <div
+              key={avatar.id}
+              className={`music-track ${active ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
             >
-              <div className="music-track-icon">
-                {selected ? '♫' : unlocked ? '♪' : '🔒'}
+              <div className="music-track-icon" style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+                <img src={avatar.image} alt={avatar.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div className="music-track-info">
-                <span className="music-track-name">{track.name}</span>
-                <span className="music-track-desc">{track.description}</span>
+                <span className="music-track-name">{avatar.name}</span>
+                <span className="music-track-desc">
+                  {active ? 'Now playing' : unlocked ? 'Unlocked' : `★ ${avatar.unlockCost} to unlock`}
+                </span>
               </div>
               <div className="music-track-right">
-                {!unlocked ? (
-                  <span className="music-track-cost">
-                    <span className="star-icon">★</span> {track.unlockCost}
-                  </span>
+                {active ? (
+                  <span style={{ fontSize: '1.2rem' }}>♫</span>
+                ) : unlocked ? (
+                  <span style={{ fontSize: '1rem', opacity: 0.4 }}>♪</span>
                 ) : (
-                  <span className="music-track-duration">{track.duration}</span>
+                  <span style={{ fontSize: '1rem', opacity: 0.3 }}>🔒</span>
                 )}
               </div>
-            </button>
+            </div>
           );
         })}
-
-        <div className="music-note">
-          Audio tracks coming soon — select to set your preference
-        </div>
       </div>
     </div>
   );

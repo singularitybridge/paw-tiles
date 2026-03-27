@@ -14,6 +14,7 @@ export interface Avatar {
   name: string;
   image: string;
   background: string; // per-avatar game background image
+  music: string; // per-avatar background music
   skill: string;
   skillId: string; // programmatic identifier
   skillLevels: SkillLevel[];
@@ -26,6 +27,7 @@ export const AVATARS: Avatar[] = [
     name: 'Mochi',
     image: '/avatars/mochi.jpg',
     background: '/backgrounds/mochi.jpg',
+    music: '/audio/mochi.mp3',
     skill: 'Zen Focus',
     skillId: 'zen-focus',
     skillLevels: [
@@ -40,6 +42,7 @@ export const AVATARS: Avatar[] = [
     name: 'Kuro',
     image: '/avatars/kuro.jpg',
     background: '/backgrounds/kuro.jpg',
+    music: '/audio/kuro.mp3',
     skill: 'Shadow Sight',
     skillId: 'shadow-sight',
     skillLevels: [
@@ -54,6 +57,7 @@ export const AVATARS: Avatar[] = [
     name: 'Sakura',
     image: '/avatars/sakura.jpg',
     background: '/backgrounds/sakura.jpg',
+    music: '/audio/sakura.mp3',
     skill: 'Lucky Paw',
     skillId: 'lucky-paw',
     skillLevels: [
@@ -68,6 +72,7 @@ export const AVATARS: Avatar[] = [
     name: 'Taro',
     image: '/avatars/taro.jpg',
     background: '/backgrounds/taro.jpg',
+    music: '/audio/taro.mp3',
     skill: 'Iron Will',
     skillId: 'iron-will',
     skillLevels: [
@@ -82,6 +87,7 @@ export const AVATARS: Avatar[] = [
     name: 'Yuki',
     image: '/avatars/yuki.jpg',
     background: '/backgrounds/yuki.jpg',
+    music: '/audio/yuki.mp3',
     skill: 'Wisdom',
     skillId: 'wisdom',
     skillLevels: [
@@ -96,6 +102,7 @@ export const AVATARS: Avatar[] = [
     name: 'Hana',
     image: '/avatars/hana.jpg',
     background: '/backgrounds/hana.jpg',
+    music: '/audio/hana.mp3',
     skill: 'Fortune',
     skillId: 'fortune',
     skillLevels: [
