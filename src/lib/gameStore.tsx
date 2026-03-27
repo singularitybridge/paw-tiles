@@ -77,7 +77,10 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
   const selectedAvatar = getAvatar(state.selectedAvatarId);
   const selectedBackground = getBackground(state.selectedBackgroundId);
   const selectedMusic = getMusicTrack(state.selectedMusicId);
-  const bgStyle = getBgStyle(selectedBackground);
+  // Use the avatar's own background if available, otherwise fall back to selected background
+  const bgStyle = selectedAvatar.background
+    ? `#0a2010 url('${selectedAvatar.background}') center / cover no-repeat`
+    : getBgStyle(selectedBackground);
 
   const getSkillLevel = useCallback((avatarId: string) => {
     return state.skillLevels[avatarId] || 1;

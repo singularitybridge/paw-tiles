@@ -5,10 +5,11 @@ import { useGameStore } from '@/lib/gameStore';
 
 interface SettingsScreenProps {
   onBack: () => void;
+  onAvatarSelect?: () => void;
 }
 
-export default function SettingsScreen({ onBack }: SettingsScreenProps) {
-  const { stars, unlockedAvatarIds, unlockedBackgroundIds, unlockedMusicIds, hapticsEnabled, toggleHaptics, resetProgress } = useGameStore();
+export default function SettingsScreen({ onBack, onAvatarSelect }: SettingsScreenProps) {
+  const { stars, selectedAvatar, unlockedAvatarIds, unlockedBackgroundIds, unlockedMusicIds, hapticsEnabled, toggleHaptics, resetProgress } = useGameStore();
   const [confirmReset, setConfirmReset] = useState(false);
 
   const handleReset = () => {
@@ -31,6 +32,21 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
       </div>
 
       <div className="settings-scroll">
+        {/* Current Avatar */}
+        <div className="settings-section">
+          <div className="settings-section-title">Your Avatar</div>
+          <button className="settings-avatar-row" onClick={onAvatarSelect}>
+            <div className="settings-avatar-img">
+              <img src={selectedAvatar.image} alt={selectedAvatar.name} />
+            </div>
+            <div className="settings-avatar-info">
+              <span className="settings-avatar-name">{selectedAvatar.name}</span>
+              <span className="settings-avatar-skill">{selectedAvatar.skill}</span>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
         {/* Stats section */}
         <div className="settings-section">
           <div className="settings-section-title">Your Progress</div>
@@ -73,7 +89,7 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
           <div className="settings-about">
             <div className="settings-about-row">
               <span className="settings-about-label">Game</span>
-              <span className="settings-about-value">Vita Mahjong</span>
+              <span className="settings-about-value">Paw Tiles</span>
             </div>
             <div className="settings-about-row">
               <span className="settings-about-label">Version</span>

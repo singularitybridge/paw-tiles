@@ -18,7 +18,7 @@ export default function MainMenu({ onNavigate }: MainMenuProps) {
     <div className="menu-container">
       <div className="menu-content">
         {/* Title */}
-        <h1 className="menu-title">Vita Mahjong</h1>
+        <h1 className="menu-title">Paw Tiles</h1>
         <div className="menu-subtitle">Tile Matching Game</div>
 
         {/* Avatar preview */}

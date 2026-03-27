@@ -19,9 +19,9 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: 'Vita Mahjong — Tile Matching Game',
+  title: 'Paw Tiles — Tile Matching Game',
   description:
-    'Classic Mahjong Solitaire tile-matching game. Match pairs of free tiles to clear the board!',
+    'Tile-matching game with cat avatars. Match pairs, collect cats, explore their worlds!',
   icons: {
     icon: '/icon.png',
     apple: '/icon.png',

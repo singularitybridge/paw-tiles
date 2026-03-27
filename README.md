@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Paw Tiles
+
+A tile-matching puzzle game featuring collectible cat avatars, each with their own unique world and abilities.
+
+**Play now:** [golem-paw-tiles.singularitybridge.net](https://golem-paw-tiles.singularitybridge.net)
+
+## How to Play
+
+- Tap tiles to select them into your slots (up to 4)
+- When 3 matching tiles are selected, they clear and you earn points
+- If all 4 slots fill without a match, it's game over
+- Clear all tiles from the board to win and earn stars
+
+## Features
+
+- **Tile Matching** — Classic mahjong solitaire-style gameplay with layered tile boards
+- **Cat Avatars** — 6 collectible cat characters, each with unique skills and upgradeable abilities
+- **Avatar Worlds** — Each cat has their own AI-generated background that appears across all screens
+- **Star Economy** — Earn stars by winning games, spend them to unlock avatars and upgrade skills
+- **Tutorial System** — Step-by-step guide for new players
+- **Game Designer** — Debug tools for testing and inspecting game state
+- **Responsive Mobile UI** — Designed for portrait phone screens with touch interactions
+
+## Avatars
+
+| Avatar | Skill | World |
+|--------|-------|-------|
+| Mochi | Zen Focus | Zen garden with cherry blossoms |
+| Kuro | Shadow Sight | Moonlit temple at night |
+| Sakura | Bloom Burst | Spring meadow with wisteria |
+| Taro | Iron Will | Mountain fortress in autumn |
+| Yuki | Frost Veil | Snowy shrine under aurora |
+| Hana | Petal Dance | Festival street with fireworks |
+
+## Tech Stack
+
+- [Next.js](https://nextjs.org) 16 with Turbopack
+- React 19 with `use client` components
+- TypeScript
+- CSS (no Tailwind utility classes — custom component styles)
+- localStorage for game state persistence
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/          — Next.js app router (layout, page, global CSS)
+  components/   — Game screens (MahjongGame, MainMenu, AvatarGallery, etc.)
+  lib/          — Game store, avatar definitions, tile data
+public/
+  avatars/      — Cat avatar illustrations
+  backgrounds/  — Per-avatar world backgrounds (AI-generated, Flux 2 Max)
+  tiles/        — Tile artwork
+```
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](LICENSE)

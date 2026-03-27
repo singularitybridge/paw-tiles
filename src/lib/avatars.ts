@@ -1,6 +1,6 @@
 // ============================================================
 // Avatar definitions — cat characters for Vita Mahjong
-// Using tile images as placeholders until dedicated art is made
+// AI-generated character illustrations in public/avatars/
 // ============================================================
 
 export interface SkillLevel {
@@ -13,6 +13,7 @@ export interface Avatar {
   id: string;
   name: string;
   image: string;
+  background: string; // per-avatar game background image
   skill: string;
   skillId: string; // programmatic identifier
   skillLevels: SkillLevel[];
@@ -23,7 +24,8 @@ export const AVATARS: Avatar[] = [
   {
     id: 'mochi',
     name: 'Mochi',
-    image: '/tiles/dots-1.png',
+    image: '/avatars/mochi.jpg',
+    background: '/backgrounds/mochi.jpg',
     skill: 'Zen Focus',
     skillId: 'zen-focus',
     skillLevels: [
@@ -36,7 +38,8 @@ export const AVATARS: Avatar[] = [
   {
     id: 'kuro',
     name: 'Kuro',
-    image: '/tiles/bamboo-3.png',
+    image: '/avatars/kuro.jpg',
+    background: '/backgrounds/kuro.jpg',
     skill: 'Shadow Sight',
     skillId: 'shadow-sight',
     skillLevels: [
@@ -49,7 +52,8 @@ export const AVATARS: Avatar[] = [
   {
     id: 'sakura',
     name: 'Sakura',
-    image: '/tiles/characters-2.png',
+    image: '/avatars/sakura.jpg',
+    background: '/backgrounds/sakura.jpg',
     skill: 'Lucky Paw',
     skillId: 'lucky-paw',
     skillLevels: [
@@ -62,7 +66,8 @@ export const AVATARS: Avatar[] = [
   {
     id: 'taro',
     name: 'Taro',
-    image: '/tiles/dots-4.png',
+    image: '/avatars/taro.jpg',
+    background: '/backgrounds/taro.jpg',
     skill: 'Iron Will',
     skillId: 'iron-will',
     skillLevels: [
@@ -75,7 +80,8 @@ export const AVATARS: Avatar[] = [
   {
     id: 'yuki',
     name: 'Yuki',
-    image: '/tiles/bamboo-6.png',
+    image: '/avatars/yuki.jpg',
+    background: '/backgrounds/yuki.jpg',
     skill: 'Wisdom',
     skillId: 'wisdom',
     skillLevels: [
@@ -88,7 +94,8 @@ export const AVATARS: Avatar[] = [
   {
     id: 'hana',
     name: 'Hana',
-    image: '/tiles/characters-5.png',
+    image: '/avatars/hana.jpg',
+    background: '/backgrounds/hana.jpg',
     skill: 'Fortune',
     skillId: 'fortune',
     skillLevels: [

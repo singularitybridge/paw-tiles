@@ -147,7 +147,7 @@ interface MahjongGameProps {
 }
 
 export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
-  const { selectedAvatar, addStars, bgStyle, getSkillLevel, vibrate } = useGameStore();
+  const { selectedAvatar, addStars, getSkillLevel, vibrate } = useGameStore();
   const { startBgm, stopBgm, playSfx } = useAudio();
   const { showTutorial, completeTutorial } = useTutorial();
   const [tiles, setTiles] = useState<GameTile[]>([]);
@@ -417,7 +417,7 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
 
   // ── Render ────────────────────────────────
   return (
-    <div className="game-container" style={{ background: bgStyle }}>
+    <div className="game-container">
       {/* Game Header */}
       <div className="game-header">
         <div className="game-header-left">
