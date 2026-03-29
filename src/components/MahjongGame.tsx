@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Shuffle, Lightbulb, Undo2, RotateCcw, Trophy, Home,
+  Shuffle, Lightbulb, Undo2, Trophy,
 } from 'lucide-react';
+import ScreenHeader from './ScreenHeader';
 import {
   GameTile, SlotItem, TileType, TileState,
   generateGame, getTileState,
@@ -116,7 +117,8 @@ function calcDims(vw: number, vh: number): Dims {
   const gapRatio = 0.02;
   const topLayer = MAX_LAYERS - 1;
 
-  const colF = BOARD_COLS + (BOARD_COLS - 1) * gapRatio;
+  const VISUAL_COLS = 7; // Size tiles as if 7-col grid so they don't get oversized
+  const colF = VISUAL_COLS + (VISUAL_COLS - 1) * gapRatio;
   let tw = Math.floor((availW - pad * 2) / (colF + loRatio * topLayer));
   let th = Math.round(tw * tileRatio);
 
@@ -143,10 +145,11 @@ interface Snapshot { tiles: GameTile[]; slots: (SlotItem | null)[]; score: numbe
 
 interface MahjongGameProps {
   onBack?: () => void;
-  onSettings?: () => void;
+  onAvatar?: () => void;
+  onWin?: () => void;
 }
 
-export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
+export default function MahjongGame({ onBack, onAvatar, onWin }: MahjongGameProps) {
   const { selectedAvatar, addStars, getSkillLevel, vibrate } = useGameStore();
   const { startBgm, stopBgm, playSfx } = useAudio(selectedAvatar.music);
   const { showTutorial, completeTutorial } = useTutorial();
@@ -162,7 +165,11 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
   const [history, setHistory] = useState<Snapshot[]>([]);
   const [scorePopups, setScorePopups] = useState<ScorePopup[]>([]);
   const [shakeBoard, setShakeBoard] = useState(false);
+  const [starsEarned, setStarsEarned] = useState(0);
   const [boardSeed, setBoardSeed] = useState(0);
+  const [shufflesLeft, setShufflesLeft] = useState(3);
+  const [hintsLeft, setHintsLeft] = useState(3);
+  const [undosLeft, setUndosLeft] = useState(3);
   const [dims, setDims] = useState<Dims>(() =>
     typeof window !== 'undefined' ? calcDims(window.innerWidth, window.innerHeight) : calcDims(400, 800),
   );
@@ -216,6 +223,10 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
     setHistory([]);
     setShakeBoard(false);
     setScorePopups([]);
+    setStarsEarned(0);
+    setShufflesLeft(3);
+    setHintsLeft(3);
+    setUndosLeft(3);
     setIsDealing(true);
     startBgm();
     if (dealRef.current) clearTimeout(dealRef.current);
@@ -247,9 +258,11 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
       playSfx('win');
       stopBgm();
       vibrate([30, 50, 30, 50, 30, 80, 60]);
-      // Award stars: 1 base + bonus for high score
-      const bonus = score >= 1000 ? 2 : score >= 500 ? 1 : 0;
-      addStars(1 + bonus);
+      // Award stars based on score, capped at 100
+      const earned = Math.min(100, score);
+      setStarsEarned(earned);
+      addStars(earned);
+      onWin?.();
     }
   }, [tiles, slots, gameState, isDealing, playSfx, stopBgm]);
 
@@ -278,8 +291,11 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
           const cleared = [...prev];
           cleared[match[0]] = null;
           cleared[match[1]] = null;
-          slotsRef.current = cleared;
-          return cleared;
+          // Compact: shift remaining tiles left so there are no gaps
+          const compacted: (SlotItem | null)[] = cleared.filter(s => s !== null);
+          while (compacted.length < SLOT_COUNT) compacted.push(null);
+          slotsRef.current = compacted;
+          return compacted;
         });
         setMatchingSlots([]);
         const pts = Math.round(100 * scoreMultiplierRef.current);
@@ -356,21 +372,26 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
 
   // ── Actions ───────────────────────────────
   const hintAction = useCallback(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || hintsLeft <= 0) return;
     const h = findHint(tiles, slots);
-    if (h !== null) setHintId(h);
-  }, [tiles, slots, gameState]);
+    if (h !== null) {
+      setHintId(h);
+      setHintsLeft(n => n - 1);
+    }
+  }, [tiles, slots, gameState, hintsLeft]);
 
   const shuffleAction = useCallback(() => {
+    if (shufflesLeft <= 0) return;
     setTiles(shuffleRemaining(tiles));
     setHintId(null);
+    setShufflesLeft(n => n - 1);
     if (!shuffleFreeRef.current) {
       setScore(s => Math.max(0, s - 100));
     }
-  }, [tiles]);
+  }, [tiles, shufflesLeft]);
 
   const undoAction = useCallback(() => {
-    if (history.length === 0) return;
+    if (history.length === 0 || undosLeft <= 0) return;
     const last = history[history.length - 1];
     setTiles(last.tiles);
     setSlots(last.slots);
@@ -383,8 +404,9 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
     setHiddenSlots(new Set());
     hiddenSlotsRef.current = new Set();
     matchActiveRef.current = false;
+    setUndosLeft(n => n - 1);
     if (gameState === 'lost') setGameState('playing');
-  }, [history, gameState]);
+  }, [history, gameState, undosLeft]);
 
   // ── Keyboard ──────────────────────────────
   useEffect(() => {
@@ -419,22 +441,16 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
   return (
     <div className="game-container">
       {/* Game Header */}
-      <div className="game-header">
-        <div className="game-header-left">
-          {onBack && (
-            <button className="game-home-btn" onClick={onBack}>
-              <Home size={18} color="rgba(255,255,255,0.5)" strokeWidth={2} />
-            </button>
-          )}
-          <div className="game-avatar" onClick={onSettings} role="button" tabIndex={0}>
-            <img src={selectedAvatar.image} alt={selectedAvatar.name} />
+      <ScreenHeader
+        title="Quick Play"
+        onBack={onBack || (() => {})}
+        avatar={{ image: selectedAvatar.image, name: selectedAvatar.name, onClick: onAvatar }}
+        rightContent={
+          <div className="header-stars">
+            <span className="star-icon">★</span> {score.toLocaleString()}
           </div>
-        </div>
-        <div className="game-header-right">
-          <span className="score-value" key={score}>{score.toLocaleString()}</span>
-          <span className="board-seed">#{boardSeed}</span>
-        </div>
-      </div>
+        }
+      />
 
       {/* Slot Bar — at the top */}
       <div className="slot-bar">
@@ -555,17 +571,17 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
 
       {/* Controls */}
       <div className="controls-bar">
-        <button className="ctrl-circle" onClick={shuffleAction} disabled={isDealing} title="Shuffle">
-          <Shuffle size={16} color="rgba(255,255,255,0.55)" strokeWidth={2} />
+        <button className="ctrl-circle ctrl-shuffle" onClick={shuffleAction} disabled={isDealing || shufflesLeft <= 0} title="Shuffle">
+          <Shuffle size={20} strokeWidth={2} />
+          <span className="ctrl-badge">{shufflesLeft}</span>
         </button>
-        <button className="ctrl-circle" onClick={hintAction} disabled={isDealing || gameState !== 'playing'} title="Hint">
-          <Lightbulb size={16} color="rgba(255,255,255,0.55)" strokeWidth={2} />
+        <button className="ctrl-circle ctrl-hint" onClick={hintAction} disabled={isDealing || gameState !== 'playing' || hintsLeft <= 0} title="Hint">
+          <Lightbulb size={20} strokeWidth={2} />
+          <span className="ctrl-badge">{hintsLeft}</span>
         </button>
-        <button className="ctrl-circle" onClick={undoAction} disabled={isDealing || history.length === 0} title="Undo">
-          <Undo2 size={16} color="rgba(255,255,255,0.55)" strokeWidth={2} />
-        </button>
-        <button className="ctrl-circle new-game" onClick={startNewGame} title="New Game">
-          <RotateCcw size={16} color="rgba(255,255,255,0.55)" strokeWidth={2} />
+        <button className="ctrl-circle ctrl-undo" onClick={undoAction} disabled={isDealing || history.length === 0 || undosLeft <= 0} title="Undo">
+          <Undo2 size={20} strokeWidth={2} />
+          <span className="ctrl-badge">{undosLeft}</span>
         </button>
       </div>
 
@@ -595,7 +611,8 @@ export default function MahjongGame({ onBack, onSettings }: MahjongGameProps) {
             </div>
             <h2>You Win!</h2>
             <p>Score: <strong>{score.toLocaleString()}</strong></p>
-            <button className="overlay-btn primary" onClick={startNewGame}>Play Again</button>
+            <p className="win-stars-earned"><span className="star-icon">★</span> +{starsEarned} stars earned</p>
+            <button className="overlay-btn primary" onClick={onBack}>Back to Menu</button>
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@
 
 import { AVATARS } from '@/lib/avatars';
 import { useGameStore } from '@/lib/gameStore';
+import ScreenHeader from './ScreenHeader';
 
 interface MusicScreenProps {
   onBack: () => void;
@@ -12,15 +13,7 @@ export default function MusicScreen({ onBack }: MusicScreenProps) {
 
   return (
     <div className="menu-container">
-      <div className="screen-header">
-        <button className="back-btn" onClick={onBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h2 className="screen-title">Music</h2>
-        <div className="header-stars">
-          <span className="star-icon">★</span> {stars}
-        </div>
-      </div>
+      <ScreenHeader title="Music" onBack={onBack} />
 
       <div className="music-list">
         <div className="music-note" style={{ marginBottom: 8 }}>

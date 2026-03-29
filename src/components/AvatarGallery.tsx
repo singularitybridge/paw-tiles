@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { AVATARS, getSkillDescription } from '@/lib/avatars';
 import { useGameStore } from '@/lib/gameStore';
+import ScreenHeader from './ScreenHeader';
 
 interface AvatarGalleryProps {
   onBack: () => void;
@@ -24,17 +25,9 @@ export default function AvatarGallery({ onBack, onViewSkills }: AvatarGalleryPro
 
   return (
     <div className="menu-container">
-      <div className="screen-header">
-        <button className="back-btn" onClick={onBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h2 className="screen-title">Avatars</h2>
-        <div className="header-stars">
-          <span className="star-icon">★</span> {stars}
-        </div>
-      </div>
+      <ScreenHeader title="Avatars" onBack={onBack} />
 
-      <div className="avatar-grid">
+      <div className="designer-worlds-list" style={{ padding: '8px 16px 16px' }}>
         {AVATARS.map(avatar => {
           const unlocked = unlockedAvatarIds.includes(avatar.id);
           const selected = avatar.id === selectedAvatarId;
@@ -45,48 +38,39 @@ export default function AvatarGallery({ onBack, onViewSkills }: AvatarGalleryPro
           return (
             <button
               key={avatar.id}
-              className={`avatar-card ${selected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
+              className={`designer-world-card ${selected ? 'active' : ''}`}
               onClick={() => unlocked ? selectAvatar(avatar.id) : handleLockedTap(avatar.id, avatar.unlockCost)}
+              style={{ border: 'none', cursor: 'pointer' }}
             >
-              <div className="avatar-card-image">
-                <img src={avatar.image} alt={avatar.name} />
-                {selected && <div className="avatar-selected-badge">✓</div>}
+              <div className="designer-world-bg">
+                <img src={avatar.background} alt={`${avatar.name}'s world`} />
               </div>
-              <div className="avatar-card-info">
-                <span className="avatar-card-name">{avatar.name}</span>
-                {!unlocked && (
-                  <span className={`avatar-card-cost ${!canAfford ? 'cant-afford' : ''}`}>
-                    <span className="star-icon">★</span> {avatar.unlockCost}
-                  </span>
-                )}
-                {unlocked && !selected && (
-                  <span className="avatar-card-owned">Owned</span>
-                )}
-                {selected && (
-                  <span className="avatar-card-active">Active</span>
-                )}
+              <div className="designer-world-overlay">
+                <div className="designer-world-avatar">
+                  <img src={avatar.image} alt={avatar.name} />
+                </div>
+                <span className="designer-world-name">{avatar.name}</span>
+                <div className="designer-world-footer">
+                  {!unlocked && (
+                    <span
+                      className={`designer-world-cost ${!canAfford ? 'cant-afford' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); if (canAfford) unlockAvatar(avatar.id); }}
+                    >
+                      {canAfford ? <>Unlock <span className="star-icon">★</span> {avatar.unlockCost}</> : <>Need <span className="star-icon">★</span> {avatar.unlockCost}</>}
+                    </span>
+                  )}
+                  {unlocked && selected && (
+                    <span className="designer-world-active">Active</span>
+                  )}
+                  {unlocked && !selected && (
+                    <span className="designer-world-owned">Owned</span>
+                  )}
+                </div>
               </div>
 
               {showMsg && (
-                <span className={`avatar-tap-msg ${canAfford ? 'afford' : 'no-afford'}`}>{tapMsg.text}</span>
+                <span className="avatar-tap-msg" style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', zIndex: 5 }}>{tapMsg.text}</span>
               )}
-
-              {!unlocked && (
-                <span
-                  className={`avatar-buy-btn ${!canAfford ? 'disabled' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); if (canAfford) unlockAvatar(avatar.id); }}
-                >
-                  {canAfford ? 'Unlock' : 'Need more ★'}
-                </span>
-              )}
-
-              <span
-                className="avatar-skill-link"
-                onClick={(e) => { e.stopPropagation(); onViewSkills(avatar.id); }}
-              >
-                {avatar.skill}
-                {unlocked && <span className="avatar-skill-level"> Lv{skillLevel}</span>}
-              </span>
             </button>
           );
         })}

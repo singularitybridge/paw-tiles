@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { AVATARS, Avatar, getAvatar } from './avatars';
 import { BACKGROUNDS, getBackground, Background, getBgStyle } from './backgrounds';
 import { MUSIC_TRACKS, getMusicTrack, MusicTrack } from './music';
+import { AREAS, BOARDS_TO_UNLOCK } from './worldMap';
 
 interface GameStoreState {
   selectedAvatarId: string;
@@ -15,6 +16,10 @@ interface GameStoreState {
   unlockedMusicIds: string[];
   stars: number;
   hapticsEnabled: boolean;
+  // World map progression
+  unlockedAreaIds: string[];
+  completedBoards: Record<string, number[]>; // areaId -> [boardIds completed]
+  currentAreaId: string;
 }
 
 interface GameStoreCtx extends GameStoreState {
@@ -34,20 +39,29 @@ interface GameStoreCtx extends GameStoreState {
   toggleHaptics: () => void;
   vibrate: (pattern: number | number[]) => void;
   resetProgress: () => void;
+  // World map
+  completeBoard: (areaId: string, boardId: number) => void;
+  isBoardCompleted: (areaId: string, boardId: number) => boolean;
+  isAreaUnlocked: (areaId: string) => boolean;
+  getAreaCompletedCount: (areaId: string) => number;
+  setCurrentArea: (areaId: string) => void;
 }
 
 const STORAGE_KEY = 'vita-mahjong-store';
 
 const DEFAULT_STATE: GameStoreState = {
-  selectedAvatarId: 'mochi',
-  unlockedAvatarIds: ['mochi'],
-  skillLevels: { mochi: 1 },
+  selectedAvatarId: 'taro',
+  unlockedAvatarIds: ['taro'],
+  skillLevels: { taro: 1 },
   selectedBackgroundId: 'bamboo',
   unlockedBackgroundIds: ['bamboo'],
   selectedMusicId: 'silent',
   unlockedMusicIds: ['silent', 'peaceful'],
   stars: 0,
   hapticsEnabled: true,
+  unlockedAreaIds: ['kyoto-temple'],
+  completedBoards: {},
+  currentAreaId: 'kyoto-temple',
 };
 
 function loadState(): GameStoreState {
@@ -196,12 +210,57 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
     setState(DEFAULT_STATE);
   }, []);
 
+  const completeBoard = useCallback((areaId: string, boardId: number) => {
+    setState(s => {
+      const prev = s.completedBoards[areaId] || [];
+      if (prev.includes(boardId)) return s; // already completed
+      const area = AREAS.find(a => a.id === areaId);
+      const board = area?.boards.find(b => b.id === boardId);
+      const updated = [...prev, boardId];
+      const newCompleted = { ...s.completedBoards, [areaId]: updated };
+
+      // Check if this unlock the next area
+      let newUnlocked = s.unlockedAreaIds;
+      if (updated.length >= BOARDS_TO_UNLOCK) {
+        const areaIndex = AREAS.findIndex(a => a.id === areaId);
+        const nextArea = AREAS[areaIndex + 1];
+        if (nextArea && !s.unlockedAreaIds.includes(nextArea.id)) {
+          newUnlocked = [...s.unlockedAreaIds, nextArea.id];
+        }
+      }
+
+      return {
+        ...s,
+        completedBoards: newCompleted,
+        unlockedAreaIds: newUnlocked,
+        stars: s.stars + (board?.starReward || 0),
+      };
+    });
+  }, []);
+
+  const isBoardCompleted = useCallback((areaId: string, boardId: number) => {
+    return (state.completedBoards[areaId] || []).includes(boardId);
+  }, [state.completedBoards]);
+
+  const isAreaUnlocked = useCallback((areaId: string) => {
+    return state.unlockedAreaIds.includes(areaId);
+  }, [state.unlockedAreaIds]);
+
+  const getAreaCompletedCount = useCallback((areaId: string) => {
+    return (state.completedBoards[areaId] || []).length;
+  }, [state.completedBoards]);
+
+  const setCurrentArea = useCallback((areaId: string) => {
+    setState(s => ({ ...s, currentAreaId: areaId }));
+  }, []);
+
   return (
     <Ctx.Provider value={{
       ...state, selectedAvatar, selectedBackground, selectedMusic, bgStyle,
       getSkillLevel, selectAvatar, unlockAvatar, upgradeSkill,
       selectBackground, unlockBackground, selectMusic, unlockMusic, addStars,
       toggleHaptics, vibrate, resetProgress,
+      completeBoard, isBoardCompleted, isAreaUnlocked, getAreaCompletedCount, setCurrentArea,
     }}>
       {children}
     </Ctx.Provider>

@@ -2,6 +2,7 @@
 
 import { AVATARS } from '@/lib/avatars';
 import { useGameStore } from '@/lib/gameStore';
+import ScreenHeader from './ScreenHeader';
 import type { Screen } from './MainMenu';
 
 interface DesignerHubProps {
@@ -13,13 +14,7 @@ export default function DesignerHub({ onNavigate }: DesignerHubProps) {
 
   return (
     <div className="menu-container">
-      <div className="screen-header">
-        <button className="back-btn" onClick={() => onNavigate('menu')}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h2 className="screen-title">Game Designer</h2>
-        <div style={{ width: 36 }} />
-      </div>
+      <ScreenHeader title="Game Designer" onBack={() => onNavigate('menu')} showStars={false} />
 
       <div className="designer-grid">
         {/* Debug: Game State */}
@@ -53,20 +48,15 @@ export default function DesignerHub({ onNavigate }: DesignerHubProps) {
           <span className="designer-card-desc">18 designs</span>
         </button>
 
-        <button className="designer-card" onClick={() => onNavigate('designer-music')}>
-          <div className="designer-card-icon" style={{ fontSize: '2rem' }}>🎵</div>
-          <span className="designer-card-label">Music</span>
-          <span className="designer-card-desc">Coming soon</span>
-        </button>
-
         {/* Avatar Worlds — each cat with their background */}
         <div className="designer-worlds-section">
           <span className="designer-debug-label">Avatar Worlds</span>
           <div className="designer-worlds-list">
             {AVATARS.map(avatar => {
               const isUnlocked = unlockedAvatarIds.includes(avatar.id);
+              const isActive = avatar.id === selectedAvatar.id;
               return (
-                <div key={avatar.id} className={`designer-world-card ${avatar.id === selectedAvatar.id ? 'active' : ''}`}>
+                <div key={avatar.id} className={`designer-world-card ${isActive ? 'active' : ''}`}>
                   <div className="designer-world-bg">
                     <img src={avatar.background} alt={`${avatar.name}'s world`} />
                   </div>
@@ -75,12 +65,14 @@ export default function DesignerHub({ onNavigate }: DesignerHubProps) {
                       <img src={avatar.image} alt={avatar.name} />
                     </div>
                     <span className="designer-world-name">{avatar.name}</span>
-                    {!isUnlocked && (
-                      <span className="designer-world-cost"><span className="star-icon">★</span> {avatar.unlockCost}</span>
-                    )}
-                    {isUnlocked && avatar.id === selectedAvatar.id && (
-                      <span className="designer-world-active">Active</span>
-                    )}
+                    <div className="designer-world-footer">
+                      {avatar.unlockCost > 0 && (
+                        <span className="designer-world-cost"><span className="star-icon">★</span> {avatar.unlockCost}</span>
+                      )}
+                      {isActive && (
+                        <span className="designer-world-active">Active</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

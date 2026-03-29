@@ -11,6 +11,7 @@ import AvatarSkills from '@/components/AvatarSkills';
 import TilesGallery from '@/components/TilesGallery';
 import MusicScreen from '@/components/MusicScreen';
 import SettingsScreen from '@/components/SettingsScreen';
+import WorldMap from '@/components/WorldMap';
 
 const MahjongGame = dynamic(() => import('@/components/MahjongGame'), {
   ssr: false,
@@ -35,11 +36,32 @@ const MahjongGame = dynamic(() => import('@/components/MahjongGame'), {
 function App() {
   const [screen, setScreen] = useState<Screen>('menu');
   const [skillAvatarId, setSkillAvatarId] = useState<string>('mochi');
-  const { bgStyle } = useGameStore();
+  const [playingBoardRef, setPlayingBoardRef] = useState<{ areaId: string; boardId: number } | null>(null);
+  const { bgStyle, completeBoard } = useGameStore();
 
   const viewSkills = (avatarId: string) => {
     setSkillAvatarId(avatarId);
     setScreen('avatar-skills' as Screen);
+  };
+
+  const handlePlayBoard = (areaId: string, boardId: number) => {
+    setPlayingBoardRef({ areaId, boardId });
+    setScreen('playing');
+  };
+
+  const handleGameWin = () => {
+    if (playingBoardRef) {
+      completeBoard(playingBoardRef.areaId, playingBoardRef.boardId);
+    }
+  };
+
+  const handleGameBack = () => {
+    if (playingBoardRef) {
+      setPlayingBoardRef(null);
+      setScreen('world-map');
+    } else {
+      setScreen('menu');
+    }
   };
 
   const renderScreen = () => {
@@ -48,7 +70,10 @@ function App() {
         return <MainMenu onNavigate={setScreen} />;
 
       case 'playing':
-        return <MahjongGame onBack={() => setScreen('menu')} onSettings={() => setScreen('settings')} />;
+        return <MahjongGame onBack={handleGameBack} onAvatar={() => setScreen('avatar')} onWin={handleGameWin} />;
+
+      case 'world-map':
+        return <WorldMap onBack={() => setScreen('menu')} onPlayBoard={handlePlayBoard} />;
 
       case 'avatar':
         return <AvatarGallery onBack={() => setScreen('menu')} onViewSkills={viewSkills} />;

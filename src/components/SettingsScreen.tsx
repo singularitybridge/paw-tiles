@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useGameStore } from '@/lib/gameStore';
+import ScreenHeader from './ScreenHeader';
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -23,13 +24,7 @@ export default function SettingsScreen({ onBack, onAvatarSelect }: SettingsScree
 
   return (
     <div className="menu-container">
-      <div className="screen-header">
-        <button className="back-btn" onClick={onBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h2 className="screen-title">Settings</h2>
-        <div style={{ width: 36 }} />
-      </div>
+      <ScreenHeader title="Settings" onBack={onBack} showStars={false} />
 
       <div className="settings-scroll">
         {/* Current Avatar */}

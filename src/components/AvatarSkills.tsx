@@ -2,6 +2,7 @@
 
 import { getAvatar, getSkillDescription } from '@/lib/avatars';
 import { useGameStore } from '@/lib/gameStore';
+import ScreenHeader from './ScreenHeader';
 
 interface AvatarSkillsProps {
   avatarId: string;
@@ -18,15 +19,7 @@ export default function AvatarSkills({ avatarId, onBack }: AvatarSkillsProps) {
 
   return (
     <div className="menu-container">
-      <div className="screen-header">
-        <button className="back-btn" onClick={onBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h2 className="screen-title">{avatar.name}</h2>
-        <div className="header-stars">
-          <span className="star-icon">★</span> {stars}
-        </div>
-      </div>
+      <ScreenHeader title={avatar.name} onBack={onBack} />
 
       <div className="skill-detail">
         {/* Avatar portrait */}

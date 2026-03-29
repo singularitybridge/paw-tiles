@@ -35,22 +35,22 @@ export interface SlotItem {
 }
 
 // Board dimensions
-export const BOARD_COLS = 7; // cols 0-6
+export const BOARD_COLS = 5; // cols 0-4
 export const BOARD_ROWS = 6; // rows 0-5
-export const TOTAL_TILES = 72;
+export const TOTAL_TILES = 60;
 export const SLOT_COUNT = 4;
 export const MAX_LAYERS = 3; // layers 0-2
 
 // ========================
-// TILE TYPES — 18 types × 4 = 72
+// TILE TYPES — 15 types × 4 = 60
 // ========================
 
-const CHAR_NUMERALS = ['一', '二', '三', '四', '五', '六'];
+const CHAR_NUMERALS = ['一', '二', '三', '四', '五'];
 
 function createTileTypes(): TileType[] {
   const types: TileType[] = [];
 
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 5; i++) {
     types.push({
       suit: 'dots', value: i, matchGroup: `dots-${i}`,
       symbol: String(i), suitIcon: '◉', color: '#dc2626',
@@ -58,7 +58,7 @@ function createTileTypes(): TileType[] {
     });
   }
 
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 5; i++) {
     types.push({
       suit: 'bamboo', value: i, matchGroup: `bamboo-${i}`,
       symbol: String(i), suitIcon: '竹', color: '#16a34a',
@@ -66,7 +66,7 @@ function createTileTypes(): TileType[] {
     });
   }
 
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 5; i++) {
     types.push({
       suit: 'characters', value: i, matchGroup: `characters-${i}`,
       symbol: CHAR_NUMERALS[i - 1], suitIcon: '万', color: '#2563eb',
@@ -80,21 +80,21 @@ function createTileTypes(): TileType[] {
 export const TILE_TYPES = createTileTypes();
 
 // ========================
-// LAYOUT — 72 tiles, diamond shape, 7 cols × 6 rows × 3 layers
-// Each layer covers most of the layer below for deeper gameplay
+// LAYOUT — 60 tiles, diamond shape, 5 cols × 6 rows × 3 layers
+// Reduced from 72 for easier gameplay
 // ========================
 
 export function generateLayout(): Position[] {
   const positions: Position[] = [];
 
-  // Layer 0 — 30 tiles (diamond base)
+  // Layer 0 — 26 tiles (diamond base)
   const l0: [number, number][] = [
-    [2, 4], // row 0: 3 tiles
-    [1, 5], // row 1: 5 tiles
-    [0, 6], // row 2: 7 tiles
-    [0, 6], // row 3: 7 tiles
-    [1, 5], // row 4: 5 tiles
-    [2, 4], // row 5: 3 tiles
+    [1, 3], // row 0: 3 tiles
+    [0, 4], // row 1: 5 tiles
+    [0, 4], // row 2: 5 tiles
+    [0, 4], // row 3: 5 tiles
+    [0, 4], // row 4: 5 tiles
+    [1, 3], // row 5: 3 tiles
   ];
   for (let r = 0; r < l0.length; r++) {
     for (let c = l0[r][0]; c <= l0[r][1]; c++) {
@@ -102,14 +102,14 @@ export function generateLayout(): Position[] {
     }
   }
 
-  // Layer 1 — 26 tiles (covers 87% of layer 0)
+  // Layer 1 — 22 tiles (diamond over layer 0)
   const l1: [number, number][] = [
-    [2, 4], // row 0: 3 tiles
-    [1, 5], // row 1: 5 tiles
-    [1, 5], // row 2: 5 tiles
-    [1, 5], // row 3: 5 tiles
-    [1, 5], // row 4: 5 tiles
-    [2, 4], // row 5: 3 tiles
+    [1, 3], // row 0: 3 tiles
+    [1, 3], // row 1: 3 tiles
+    [0, 4], // row 2: 5 tiles
+    [0, 4], // row 3: 5 tiles
+    [1, 3], // row 4: 3 tiles
+    [1, 3], // row 5: 3 tiles
   ];
   for (let r = 0; r < l1.length; r++) {
     for (let c = l1[r][0]; c <= l1[r][1]; c++) {
@@ -117,12 +117,12 @@ export function generateLayout(): Position[] {
     }
   }
 
-  // Layer 2 — 16 tiles (covers center of layer 1)
+  // Layer 2 — 12 tiles (center rectangle)
   const l2: [number, number][] = [
-    [2, 4], // row 1: 3 tiles
-    [1, 5], // row 2: 5 tiles
-    [1, 5], // row 3: 5 tiles
-    [2, 4], // row 4: 3 tiles
+    [1, 3], // row 1: 3 tiles
+    [1, 3], // row 2: 3 tiles
+    [1, 3], // row 3: 3 tiles
+    [1, 3], // row 4: 3 tiles
   ];
   for (let r = 0; r < l2.length; r++) {
     for (let c = l2[r][0]; c <= l2[r][1]; c++) {
@@ -130,7 +130,7 @@ export function generateLayout(): Position[] {
     }
   }
 
-  return positions; // 30 + 26 + 16 = 72
+  return positions; // 26 + 22 + 12 = 60
 }
 
 // ========================

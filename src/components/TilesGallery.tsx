@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { TILE_TYPES } from '@/lib/mahjong';
+import ScreenHeader from './ScreenHeader';
 
 const TILE_IMAGES: Record<string, string> = {
   'dots-1': '/tiles/dots-1.png', 'dots-2': '/tiles/dots-2.png', 'dots-3': '/tiles/dots-3.png',
@@ -27,13 +28,7 @@ export default function TilesGallery({ onBack }: TilesGalleryProps) {
 
   return (
     <div className="menu-container">
-      <div className="screen-header">
-        <button className="back-btn" onClick={onBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h2 className="screen-title">Tiles</h2>
-        <div style={{ width: 36 }} />
-      </div>
+      <ScreenHeader title="Tiles" onBack={onBack} showStars={false} />
 
       <div className="tiles-gallery-scroll">
         {SUITS.map(suit => {

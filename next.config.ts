@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   allowedDevOrigins: ['golem-paw-tiles.singularitybridge.net'],
   headers: async () => [
     {

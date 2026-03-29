@@ -5,7 +5,7 @@ import { useGameStore } from '@/lib/gameStore';
 export type Screen =
   | 'menu' | 'playing' | 'avatar' | 'avatar-skills'
   | 'designer' | 'designer-tiles' | 'designer-backgrounds' | 'designer-music'
-  | 'settings';
+  | 'settings' | 'world-map';
 
 interface MainMenuProps {
   onNavigate: (screen: Screen) => void;
@@ -37,11 +37,11 @@ export default function MainMenu({ onNavigate }: MainMenuProps) {
 
         {/* Buttons */}
         <div className="menu-buttons">
-          <button className="menu-btn primary" onClick={() => onNavigate('playing')}>
-            New Game
+          <button className="menu-btn primary" onClick={() => onNavigate('world-map')}>
+            Adventure
           </button>
-          <button className="menu-btn" onClick={() => onNavigate('avatar')}>
-            Avatar
+          <button className="menu-btn" onClick={() => onNavigate('playing')}>
+            Quick Play
           </button>
           <button className="menu-btn" onClick={() => onNavigate('designer')}>
             Game Designer
